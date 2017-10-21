@@ -30,6 +30,8 @@ class ResultsActivity : BaseActivity(), BaseResultsFragment.ResultsFragmentInter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        setTitle("")
+
         val adapter = ResultsPagerAdapter(supportFragmentManager)
 
         resultsViewModel.adapter.set(adapter)

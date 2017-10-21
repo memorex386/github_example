@@ -59,9 +59,12 @@ class NetworkModule {
     @Provides
     fun provideCacheLengthInterceptor(): Interceptor = Interceptor { chain ->
         val maxAge = 60 * 5 // read from cache for 5 minutes
-        chain.proceed(chain.request()).newBuilder()
-                .header("Cache-Control", "public, max-age=" + maxAge)
-                .build()
+        val response = chain.proceed(chain.request())
+        if (response.isSuccessful)
+            response.newBuilder()
+                    .header("Cache-Control", "public, max-age=" + maxAge)
+                    .build()
+        else response
     }
 
     @ApplicationScope
