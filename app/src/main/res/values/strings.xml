@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Github Serach</string>
+    <string name="no_results">No Results Found for %1$s using filter "%2$s"</string>
+    <string name="start_search">Enter a search query above to search the %1$s on Github!</string>
+    <string name="open_url_dev">Open url... (dev)</string>
+    <string name="sort">Sort</string>
+    <string name="order">Order</string>
+    <string name="custom_chrome_tab">Custom Chrome Tab</string>
+    <string name="webview">WebView</string>
+</resources>

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="githubRepo"
+            type="com.example.bradleythome.githubserach.models.GithubRepo" />
+
+        <variable
+            name="viewModel"
+            type="com.example.bradleythome.githubserach.search.SearchViewContainer" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:foreground="@drawable/border_bottom"
+        android:onClick="@{v -> viewModel.onItemClicked(githubRepo)}"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="16dp"
+            android:layout_marginStart="16dp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_repo" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingTop="16dp">
+
+            <TextView
+                style="@style/BoldBlue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingEnd="16dp"
+                android:paddingRight="16dp"
+                android:text="@{githubRepo.fullName}"
+                tools:text="Barbecue" />
+
+            <TextView
+                html="@{githubRepo.description}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:paddingEnd="16dp"
+                android:paddingRight="16dp"
+                android:textColor="#757575"
+                android:textSize="14sp"
+                tools:text="Barbecue" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <android.support.v7.widget.AppCompatImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="8dp"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@drawable/ic_star_grey_24dp" />
+
+                <TextView
+                    text="@{githubRepo.stargazersCount}"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:paddingEnd="16dp"
+                    android:paddingRight="16dp"
+                    android:textColor="#2e2e2e"
+                    android:textSize="12sp"
+                    tools:text="Barbecue" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#cfd8dc"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</layout>

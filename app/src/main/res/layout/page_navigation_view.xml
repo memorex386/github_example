@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.bradleythome.githubserach.results.fragment.BaseResultsViewModel" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_top"
+        android:orientation="horizontal">
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:onClick="@{(v) -> viewModel.onBackClicked()}"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_keyboard_arrow_left_black_24dp" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:orientation="horizontal">
+
+                <TextView
+                    text="@{viewModel == null ? 1 : viewModel.currentPage}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="1" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginEnd="8dp"
+                    android:layout_marginStart="8dp"
+                    android:gravity="center"
+                    android:text="of" />
+
+                <TextView
+                    text="@{viewModel == null ? 1 : viewModel.totalPages}"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:textColor="#000000"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    tools:text="100" />
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+        <android.support.v7.widget.AppCompatImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:onClick="@{(v) -> viewModel.onForwardClicked()}"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_keyboard_arrow_right_black_24dp" />
+
+    </LinearLayout>
+
+</layout>

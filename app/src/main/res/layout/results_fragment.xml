@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.bradleythome.githubserach.results.fragment.BaseResultsViewModel" />
+
+        <variable
+            name="searchViewContainer"
+            type="com.example.bradleythome.githubserach.search.SearchViewContainer" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                adapter="@{viewModel.searchViewContainer}"
+                invisible="@{viewModel.searchViewContainer.hasResults &amp;&amp; !viewModel.searchViewContainer.loading}"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <com.example.bradleythome.githubserach.results.PageNavigationView
+                viewModel="@{viewModel}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:visibility="@{viewModel.searchViewContainer.hasResults}" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="@{!viewModel.searchViewContainer.hasResults &amp;&amp; !viewModel.searchViewContainer.loading}">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@{viewModel.searchViewContainer.noResultsText}"
+                android:textSize="32sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="32dp"
+                android:gravity="center"
+                android:text="@{viewModel.searchViewContainer.errorMessage}"
+                android:textColor="@color/red"
+                android:textSize="24sp"
+                android:visibility="@{viewModel.searchViewContainer.errorMessage}" />
+
+        </LinearLayout>
+
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="@{viewModel.searchViewContainer.loading}" />
+
+
+    </FrameLayout>
+
+</layout>

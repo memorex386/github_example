@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.example.bradleythome.githubserach.results.webview.WebViewSelectViewModel" />
+    </data>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="32dp"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/BoldBlue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/open_url_dev"
+                android:textSize="40dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:orientation="vertical">
+
+                <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawablePadding="8dp"
+                    android:foreground="@drawable/border_bottom"
+                    android:onClick="@{(v) -> viewModel.customTabClicked()}"
+                    android:paddingBottom="8dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/custom_chrome_tab"
+                    android:textColor="@color/black"
+                    android:textSize="24sp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:drawablePadding="8dp"
+                    android:foreground="@drawable/border_bottom"
+                    android:onClick="@{(v) -> viewModel.webViewClicked()}"
+                    android:paddingBottom="8dp"
+                    android:paddingTop="8dp"
+                    android:text="@string/webview"
+                    android:textColor="@color/black"
+                    android:textSize="24sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+    </ScrollView>
+</layout>
