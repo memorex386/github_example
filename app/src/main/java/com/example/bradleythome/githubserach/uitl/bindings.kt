@@ -3,6 +3,7 @@ package com.example.bradleythome.githubserach.uitl
 import android.databinding.BindingAdapter
 import android.databinding.BindingConversion
 import android.os.Build
+import android.support.design.widget.TabLayout
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.ViewPager
@@ -12,6 +13,7 @@ import android.support.v7.widget.RecyclerView
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
+import android.view.animation.Animation
 import android.webkit.WebView
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -78,6 +80,16 @@ fun setHtmlText(textView: TextView, htmlText: String?) {
 @BindingAdapter("adapter")
 fun loadImage(viewPager: ViewPager, fragmentStatePagerAdapter: FragmentStatePagerAdapter) {
     viewPager.adapter = fragmentStatePagerAdapter
+}
+
+@BindingAdapter("animations")
+fun setAnimations(view: View, animation: Animation) {
+    view.startAnimation(animation)
+}
+
+@BindingAdapter("viewPager")
+fun setviewPager(tabLayout: TabLayout, viewPager: ViewPager) {
+    tabLayout.setupWithViewPager(viewPager)
 }
 
 @BindingAdapter("adapter")

@@ -6,8 +6,6 @@ import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.view.animation.AnimationUtils
-import android.widget.SearchView
 import com.example.bradleythome.githubserach.R
 import com.example.bradleythome.githubserach.core.BaseActivity
 import com.example.bradleythome.githubserach.databinding.ResultsActivityBinding
@@ -41,27 +39,9 @@ class ResultsActivity : BaseActivity(), BaseResultsFragment.ResultsFragmentInter
 
         setSupportActionBar(toolbar)
 
-        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(string: String?): Boolean {
-                resultsViewModel.querySearch.set(string)
-                return false
-            }
-
-            override fun onQueryTextChange(string: String?): Boolean {
-                if (string.isNullOrBlank()) resultsViewModel.querySearch.set("")
-                return true
-            }
-
-        })
 
         with(binding) {
 
-            val slide_down = AnimationUtils.loadAnimation(applicationContext,
-                    R.anim.slide_down)
-
-            imageview_logo.startAnimation(slide_down)
-
-            tabLayout.setupWithViewPager(view_pager)
 
             resultsViewModel.sortAction.observe(this@ResultsActivity) {
                 adapter.getCurrentFragment()?.viewModel?.let {

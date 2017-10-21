@@ -25,5 +25,14 @@ class ResultsActivityViewModel @Inject constructor(app: Application, val githubR
         orderAction.actionOccurred()
     }
 
+    fun onQuerySubmitted(string: String?): Boolean {
+        querySearch.set(string)
+        return true
+    }
+
+    fun onQueryChanged(string: String?): Boolean {
+        if (string.isNullOrBlank()) querySearch.set("")
+        return true
+    }
 }
 
