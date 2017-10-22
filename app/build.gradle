@@ -11,7 +11,7 @@ android {
     buildToolsVersion '26.0.2'
     defaultConfig {
         applicationId "com.example.bradleythome.githubserach"
-        minSdkVersion 17
+        minSdkVersion 21
         targetSdkVersion 26
         multiDexEnabled true
         versionCode 1
