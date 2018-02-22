@@ -4,7 +4,6 @@ import android.app.Application
 import android.content.Context
 import android.content.DialogInterface
 import android.databinding.DataBindingUtil
-import android.databinding.ObservableField
 import android.databinding.ViewDataBinding
 import android.support.annotation.LayoutRes
 import android.support.v4.content.ContextCompat
@@ -12,16 +11,19 @@ import android.support.v7.app.AlertDialog
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import com.example.bradleythome.githubserach.R
-import com.example.bradleythome.githubserach.core.BaseActivity
-import com.example.bradleythome.githubserach.core.BaseViewModel
+import com.example.bradleythome.githubserach.core.app
+import com.example.bradleythome.githubserach.core.base.BaseLifecycleActivity
+import com.example.bradleythome.githubserach.core.base.BaseViewModel
 import com.example.bradleythome.githubserach.databinding.OrderDialogBinding
 import com.example.bradleythome.githubserach.databinding.SortDialogBinding
+import com.example.bradleythome.githubserach.extensions.observe
 import com.example.bradleythome.githubserach.models.*
 import com.example.bradleythome.githubserach.network.GithubRepository
 import com.example.bradleythome.githubserach.results.ResultsActivityViewModel
 import com.example.bradleythome.githubserach.results.sort.SortOrderViewModel
 import com.example.bradleythome.githubserach.search.*
-import com.example.bradleythome.githubserach.uitl.LiveDataAction
+import com.example.bradleythome.githubserach.uitl.Action
+import com.example.bradleythome.githubserach.uitl.onChange
 import com.example.bradleythome.githubserach.uitl.subscribe
 import javax.inject.Inject
 
@@ -30,31 +32,30 @@ import javax.inject.Inject
  */
 
 
-abstract class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: SearchEnum, app: Application, githubRepository: GithubRepository) : BaseViewModel(app) {
+sealed class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: SearchEnum, app: Application, githubRepository: GithubRepository) : BaseViewModel(app) {
 
-
-    val currentPage = ObservableField<Int>(1)
-    val totalPages = ObservableField<Int>(1)
-    val sort = ObservableField<Pair<String, String>>(Pair("", "Best Match"))
-    val order = ObservableField<Order>(Order.DESC)
+    val currentPage = 1.observe
+    val totalPages = 1.observe
+    val sort = Pair("", "Best Match").observe
+    val order = Order.DESC.observe
 
     var lastSearch: SearchOptions? = null
     var searchingFor: SearchOptions? = null
 
-    val scrollUpRequested = LiveDataAction()
+    val scrollUpRequested = Action()
 
     val searchViewContainer: SearchViewContainer<*>
 
     var dialog: AlertDialog? = null
 
     init {
-        currentPage.subscribe(compositeDisposable) {
+        currentPage.onChange {
             search()
         }
-        sort.subscribe(compositeDisposable) {
+        sort.onChange {
             search()
         }
-        order.subscribe(compositeDisposable) {
+        order.onChange {
             search()
         }
         searchViewContainer = searchEnum.searchViewContainer(app, this, compositeDisposable, githubRepository)
@@ -119,7 +120,7 @@ abstract class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum:
         }
     }
 
-    fun chooseOrder(activity: BaseActivity, sortViewModel: SortOrderViewModel) {
+    fun chooseOrder(activity: BaseLifecycleActivity, sortViewModel: SortOrderViewModel) {
 
         dialog(activity, sortViewModel, R.layout.order_dialog) {
             DataBindingUtil.inflate<OrderDialogBinding>(LayoutInflater.from(activity), R.layout.order_dialog, null, false).apply {
@@ -128,7 +129,7 @@ abstract class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum:
         }
     }
 
-    fun dialog(activity: BaseActivity, sortViewModel: SortOrderViewModel, @LayoutRes layout: Int, binding: () -> ViewDataBinding) {
+    fun dialog(activity: BaseLifecycleActivity, sortViewModel: SortOrderViewModel, @LayoutRes layout: Int, binding: () -> ViewDataBinding) {
         sortViewModel.baseResultsViewModel = this
 
         dialog = activity.dialogSelect(binding)
@@ -136,7 +137,7 @@ abstract class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum:
     }
 
 
-    fun chooseSort(activity: BaseActivity, sortViewModel: SortOrderViewModel) {
+    fun chooseSort(activity: BaseLifecycleActivity, sortViewModel: SortOrderViewModel) {
 
         dialog(activity, sortViewModel, R.layout.order_dialog) {
             DataBindingUtil.inflate<SortDialogBinding>(LayoutInflater.from(activity), R.layout.sort_dialog, null, false).apply {
@@ -146,7 +147,8 @@ abstract class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum:
     }
 
     val searchOptions: SearchOptions
-        get() = SearchOptions(searchEnum, resultsActivityViewModel?.querySearch?.get() ?: "", currentPage.get(), sort.get(), order.get())
+        get() = SearchOptions(searchEnum, resultsActivityViewModel?.querySearch?.get()
+                ?: "", currentPage.get(), sort.get(), order.get())
 }
 
 fun Context.dialogSelect(binding: () -> ViewDataBinding): AlertDialog {

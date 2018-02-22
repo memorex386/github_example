@@ -1,4 +1,4 @@
-package com.example.bradleythome.githubserach.extensions
+package com.example.bradleythome.githubserach.core.base
 
 import android.arch.lifecycle.*
 import android.content.Context
@@ -9,13 +9,19 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.example.bradleythome.githubserach.core.Injectable
+import com.example.bradleythome.githubserach.extensions.CompositeDisposableInterface
+import com.example.bradleythome.githubserach.extensions.ContextReferenceInterface
+import com.example.bradleythome.githubserach.extensions.ifFalse
+import com.example.bradleythome.githubserach.uitl.ActionItem
 import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
+import javax.inject.Inject
 
 /**
  * Created by bradthome on 12/1/17.
  */
-abstract class BaseFragmentSansDataBindingAndViewModel : Fragment(), LifecycleOwner, CompositeDisposableInterface, ContextReferenceInterface {
+abstract class BaseFragmentSansDataBindingAndViewModel : Fragment(), LifecycleOwner, CompositeDisposableInterface, ContextReferenceInterface, Injectable {
 
     override val contextReference: Context?
         get() = context
@@ -73,7 +79,10 @@ abstract class BaseFragmentSansDataBindingAndViewModel : Fragment(), LifecycleOw
 
 abstract class BaseViewModelFragment<T : BaseViewModel> : BaseFragmentSansDataBindingAndViewModel() {
 
-    protected val viewModel by lazy { ViewModelProviders.of(this).get(viewModelClass) }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    protected val viewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(viewModelClass) }
 
     abstract protected val viewModelClass: Class<T>
 

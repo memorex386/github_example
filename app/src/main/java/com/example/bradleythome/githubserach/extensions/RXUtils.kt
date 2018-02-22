@@ -1,6 +1,9 @@
 package com.example.bradleythome.githubserach.extensions
 
 import android.databinding.ObservableField
+import com.example.bradleythome.githubserach.uitl.Action
+import com.example.bradleythome.githubserach.uitl.ActionItem
+import com.example.bradleythome.githubserach.uitl.ObservableFieldItemAction
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable

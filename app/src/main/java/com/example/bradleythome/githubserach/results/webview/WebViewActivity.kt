@@ -14,7 +14,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.example.bradleythome.githubserach.R
-import com.example.bradleythome.githubserach.core.BaseActivity
+import com.example.bradleythome.githubserach.core.base.BaseLifecycleActivity
 import com.example.bradleythome.githubserach.databinding.WebViewActivityBinding
 import kotlinx.android.synthetic.main.web_view_activity.*
 import javax.inject.Inject
@@ -22,9 +22,10 @@ import javax.inject.Inject
 /**
  * Created by bradley.thome on 10/19/17.
  */
-class WebViewActivity : BaseActivity() {
+class WebViewActivity : BaseLifecycleActivity() {
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     private val viewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(WebViewViewModel::class.java) }
 
 

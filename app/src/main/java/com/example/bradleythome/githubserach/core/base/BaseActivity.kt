@@ -1,10 +1,8 @@
-package com.example.bradleythome.githubserach.extensions
+package com.example.bradleythome.githubserach.core.base
 
+import android.annotation.SuppressLint
 import android.app.Application
-import android.arch.lifecycle.Lifecycle
-import android.arch.lifecycle.LifecycleObserver
-import android.arch.lifecycle.OnLifecycleEvent
-import android.arch.lifecycle.ViewModelProviders
+import android.arch.lifecycle.*
 import android.content.Context
 import android.content.Intent
 import android.databinding.DataBindingUtil
@@ -14,12 +12,20 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentTransaction
 import android.support.v7.app.AppCompatActivity
 import com.example.bradleythome.githubserach.R
+import com.example.bradleythome.githubserach.core.Injectable
+import com.example.bradleythome.githubserach.extensions.*
+import com.example.bradleythome.githubserach.uitl.ActionItem
 import io.reactivex.disposables.CompositeDisposable
 import java.lang.reflect.Type
+import javax.inject.Inject
 
+/**
+ * Created by bradley.thome on 10/17/17.
+ */
 interface ReferenceActivityInterface<out ACTIVITY : BaseLifecycleActivity> : ContextReferenceInterface, BaseLifecycleActivityInterface {
     val activity: ACTIVITY
-        get() = contextReference as ACTIVITY
+        get() = contextReference as? ACTIVITY
+                ?: throw RuntimeException("$contextReference must be an instance of generic ACTIVITY")
 
     override val lifecycleActivity: BaseLifecycleActivity
         get() = activity
@@ -57,7 +63,8 @@ interface BaseLifecycleActivityInterface {
 /**
  * Created by bradthome on 12/1/17.
  */
-abstract class BaseLifecycleActivity : AppCompatActivity(), CompositeDisposableInterface, ContextNotNullInterface, BaseLifecycleActivityInterface {
+@SuppressLint("Registered")
+abstract class BaseLifecycleActivity : AppCompatActivity(), CompositeDisposableInterface, ContextNotNullInterface, BaseLifecycleActivityInterface, Injectable {
 
     override val lifecycleActivity: BaseLifecycleActivity
         get() = this
@@ -144,7 +151,10 @@ abstract class BaseLifecycleActivity : AppCompatActivity(), CompositeDisposableI
 
 abstract class BaseViewModelActivity<T : BaseViewModel> : BaseLifecycleActivity() {
 
-    protected val viewModel by lazy { ViewModelProviders.of(this).get(viewModelClass) }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
+
+    protected val viewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(viewModelClass) }
 
     abstract protected val viewModelClass: Class<T>
 
@@ -232,11 +242,12 @@ interface DefaultFragmentActivity : DefaultActivity {
 }
 
 enum class BaseActivityLayout(override val layoutRes: Int, override val fragmentContainerId: Int) : DefaultFragmentActivity {
-    DEFAULT(R.layout.activity_default_base, R.id.container),
-    NO_TOOLBAR(R.layout.activity_no_toolbar, R.id.container)
+    DEFAULT(R.layout.results_activity, R.id.container),
+    NO_TOOLBAR(R.layout.results_activity, R.id.container)
 }
 
 abstract class BaseDefaultViewModel(app: Application) : BaseViewModel(app) {
 
 }
+
 

@@ -1,4 +1,4 @@
-package com.example.bradleythome.githubserach.extensions
+package com.example.bradleythome.githubserach.core.base
 
 import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver

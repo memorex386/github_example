@@ -3,39 +3,49 @@ package com.example.bradleythome.githubserach.uitl
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.Observer
-import android.databinding.ObservableField
 import android.support.annotation.MainThread
+import com.example.bradleythome.githubserach.extensions.Observe
+import com.example.bradleythome.githubserach.extensions.subscribe
+import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
 /**
  * Created by bradley.thome on 10/19/17.
  */
-class LiveDataActionComposit {
+class ResultsHolder<out T : Any?>(val item: T)
+
+open class ObservableFieldItemAction<T : Any?> {
     //LiveData that backs up our LiveDataAction
-    private val liveData = ObservableField<Boolean>(false)
+    val liveData = Observe<ResultsHolder<T>?>(null)
 
     @MainThread
-    fun observe(compositeDisposable: CompositeDisposable, observer: () -> Unit) {
+    fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit) {
         liveData.subscribe(compositeDisposable) { t ->
-            if (t) {
-                //call observer
-                observer()
-                //reset liveData
-                liveData.set(false)
+            t?.let {
+                observer(it.item)
+                liveData.set(null)
             }
         }
     }
 
     @MainThread
-    fun actionOccurred() {
+    fun actionOccurred(item: T) {
         //set backing liveData to true
-        liveData.set(true)
+        liveData.set(ResultsHolder(item))
     }
 }
 
-class ResultsHolder<T : Any?>(val item: T)
+class ObservableFieldAction : ObservableFieldItemAction<Boolean>() {
 
-open class BaseLiveDataAction<T : Any?> {
+    @MainThread
+    fun actionOccurred() {
+        //set backing liveData to true
+        liveData.set(ResultsHolder(false))
+    }
+}
+
+
+open class ActionItem<T : Any?> {
     //LiveData that backs up our LiveDataAction
     val liveData = MutableLiveData<ResultsHolder<T>?>()
 
@@ -49,6 +59,30 @@ open class BaseLiveDataAction<T : Any?> {
                 liveData.value = null
             }
         })
+    }
+
+    @MainThread
+    fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit) {
+        // Observe the internal MutableLiveData
+
+        val observe = Observable.create<ResultsHolder<T>?> {
+
+            val observerItem = Observer<ResultsHolder<T>?> { t ->
+                t?.let {
+                    observer(it.item)
+                    liveData.value = null
+                }
+            }
+
+            it.setCancellable {
+                liveData.removeObserver(observerItem)
+            }
+
+            liveData.observeForever(observerItem)
+        }.subscribe({}, {}, {}, {})
+
+        compositeDisposable.add(observe)
+
     }
 
     /**
@@ -68,11 +102,12 @@ open class BaseLiveDataAction<T : Any?> {
     @MainThread
     fun actionOccurred(item: T) {
         //set backing liveData to true
+        //   if (Looper.myLooper() == Looper.getMainLooper())
         liveData.value = ResultsHolder(item)
     }
 }
 
-class LiveDataAction : BaseLiveDataAction<Boolean>() {
+class Action : ActionItem<Boolean>() {
     @MainThread
     fun actionOccurred() {
         //set backing liveData to true

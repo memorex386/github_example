@@ -1,60 +1,56 @@
 package com.example.bradleythome.githubserach.results
 
 import android.app.Activity
-import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Intent
-import android.databinding.DataBindingUtil
 import android.os.Bundle
 import com.example.bradleythome.githubserach.R
-import com.example.bradleythome.githubserach.core.BaseActivity
+import com.example.bradleythome.githubserach.core.base.BaseActivity
 import com.example.bradleythome.githubserach.databinding.ResultsActivityBinding
 import com.example.bradleythome.githubserach.results.fragment.BaseResultsFragment
 import com.example.bradleythome.githubserach.results.sort.SortOrderViewModel
 import kotlinx.android.synthetic.main.results_activity.*
-import javax.inject.Inject
 
 
-class ResultsActivity : BaseActivity(), BaseResultsFragment.ResultsFragmentInterface {
+class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBinding>(), BaseResultsFragment.ResultsFragmentInterface {
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val resultsViewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(ResultsActivityViewModel::class.java) }
+
     private val sortViewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(SortOrderViewModel::class.java) }
 
     companion object {
         val SORT_RESULT = 1234
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override val layoutRes: Int
+        get() = R.layout.results_activity
 
-        setTitle("")
+    override fun preDataBinded(savedInstanceState: Bundle?) {
+        super.preDataBinded(savedInstanceState)
+
 
         val adapter = ResultsPagerAdapter(supportFragmentManager)
 
-        resultsViewModel.adapter.set(adapter)
+        viewModel.adapter.set(adapter)
+    }
 
-        val binding = DataBindingUtil.setContentView<ResultsActivityBinding>(this, R.layout.results_activity)
-        binding.viewModel = resultsViewModel
+    override fun onCreateDataBinded(savedInstanceState: Bundle?) {
+        setTitle("")
+
+
 
         setSupportActionBar(toolbar)
 
 
-        with(binding) {
-
-
-            resultsViewModel.sortAction.observe(this@ResultsActivity) {
-                adapter.getCurrentFragment()?.viewModel?.let {
-                    it.chooseSort(this@ResultsActivity, sortViewModel)
-                }
-
+        viewModel.sortAction.observe(this@ResultsActivity) {
+            adapter.getCurrentFragment()?.viewModel?.let {
+                it.chooseSort(this@ResultsActivity, sortViewModel)
             }
 
-            resultsViewModel.orderAction.observe(this@ResultsActivity) {
-                adapter.getCurrentFragment()?.viewModel?.let {
-                    it.chooseOrder(this@ResultsActivity, sortViewModel)
-                }
+        }
 
+        resultsViewModel.orderAction.observe(this@ResultsActivity) {
+            adapter.getCurrentFragment()?.viewModel?.let {
+                it.chooseOrder(this@ResultsActivity, sortViewModel)
             }
 
         }

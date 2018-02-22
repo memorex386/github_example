@@ -1,6 +1,7 @@
 package com.example.bradleythome.githubserach.core
 
 import com.example.bradleythome.githubserach.BuildConfig
+import com.squareup.moshi.Moshi
 import timber.log.Timber
 
 /**
@@ -28,3 +29,5 @@ class CustomApplication : DaggerApplication() {
 
 lateinit var app: CustomApplication
     private set
+
+lateinit var moshi: Moshi

@@ -2,9 +2,9 @@ package com.example.bradleythome.githubserach.results
 
 import android.app.Application
 import android.databinding.ObservableField
-import com.example.bradleythome.githubserach.core.BaseViewModel
+import com.example.bradleythome.githubserach.core.base.BaseViewModel
 import com.example.bradleythome.githubserach.network.GithubRepository
-import com.example.bradleythome.githubserach.uitl.LiveDataAction
+import com.example.bradleythome.githubserach.uitl.Action
 import javax.inject.Inject
 
 
@@ -14,8 +14,8 @@ class ResultsActivityViewModel @Inject constructor(app: Application, val githubR
 
     val adapter = ObservableField<ResultsPagerAdapter>()
 
-    val sortAction = LiveDataAction()
-    val orderAction = LiveDataAction()
+    val sortAction = Action()
+    val orderAction = Action()
 
     fun sortClicked() {
         sortAction.actionOccurred()

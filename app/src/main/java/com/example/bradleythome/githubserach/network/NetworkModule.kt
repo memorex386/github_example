@@ -3,6 +3,7 @@ package com.example.bradleythome.githubserach.network
 import android.content.Context
 import com.example.bradleythome.githubserach.core.ApplicationScope
 import com.example.bradleythome.githubserach.core.ForApplication
+import com.example.bradleythome.githubserach.core.moshi
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
@@ -52,7 +53,9 @@ class NetworkModule {
     fun provideMoshi(): Moshi {
         val moshiBuilder = Moshi.Builder()
         moshiBuilder.add(KotlinJsonAdapterFactory())
-        return moshiBuilder.build()
+        return moshiBuilder.build().apply {
+            moshi = this
+        }
     }
 
     @ApplicationScope
@@ -79,8 +82,7 @@ class NetworkModule {
 
     @ApplicationScope
     @Provides
-    fun provideRetrofit(oktHttpClient: OkHttpClient, moshi: Moshi): Retrofit
-            = Retrofit.Builder()
+    fun provideRetrofit(oktHttpClient: OkHttpClient, moshi: Moshi): Retrofit = Retrofit.Builder()
             .client(oktHttpClient)
             .baseUrl("https://api.github.com") //FIXME
             .addConverterFactory(MoshiConverterFactory.create(moshi))

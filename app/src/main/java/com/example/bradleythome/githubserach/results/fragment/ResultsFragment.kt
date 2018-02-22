@@ -9,10 +9,8 @@ import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
 import android.support.v7.app.AlertDialog
 import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import com.example.bradleythome.githubserach.R
-import com.example.bradleythome.githubserach.core.BaseFragment
+import com.example.bradleythome.githubserach.core.base.BaseFragment
 import com.example.bradleythome.githubserach.databinding.ResultsFragmentBinding
 import com.example.bradleythome.githubserach.databinding.WebviewDialogBinding
 import com.example.bradleythome.githubserach.models.*
@@ -24,13 +22,14 @@ import kotlinx.android.synthetic.main.results_fragment.*
 import javax.inject.Inject
 
 
-abstract class BaseResultsFragment<T : ResultsItem> : BaseFragment() {
+sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewModel<T>> : BaseFragment<VIEW_MODEL, ResultsFragmentBinding>() {
 
+    override val layoutRes: Int
+        get() = R.layout.results_fragment
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    val viewModel: BaseResultsViewModel<T> by lazy { ViewModelProviders.of(activity, viewModelFactory).get(getClazz()) }
+    @Inject
+    lateinit var viewModelFactory: ViewModelProvider.Factory
     val webViewSelectViewModel by lazy { ViewModelProviders.of(activity, viewModelFactory).get(WebViewSelectViewModel::class.java) }
-    lateinit var binding: ResultsFragmentBinding
 
     lateinit var searchViewContainer: SearchViewContainer<T>
 
@@ -44,7 +43,7 @@ abstract class BaseResultsFragment<T : ResultsItem> : BaseFragment() {
 
     private var dialog: AlertDialog? = null
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateDataBinded(savedInstanceState: Bundle?) {
 
         viewModel.resultsActivityViewModel = resultsFragmentInterface.activityViewModel()
 
@@ -58,7 +57,7 @@ abstract class BaseResultsFragment<T : ResultsItem> : BaseFragment() {
 
         }
 
-        webViewSelectViewModel.webview.observe(this) {
+        webViewSelectViewModel.webview.onChanged {
             dialog?.apply {
                 dismiss()
             }
@@ -69,7 +68,7 @@ abstract class BaseResultsFragment<T : ResultsItem> : BaseFragment() {
             //TODO handle no url here
         }
 
-        viewModel.searchViewContainer.itemClickedAction.observe(this) {
+        viewModel.searchViewContainer.itemClickedAction.onChanged {
             it.htmlUrl?.let { url ->
                 dialog = context.dialogSelect {
                     DataBindingUtil.inflate<WebviewDialogBinding>(LayoutInflater.from(activity), R.layout.webview_dialog, null, false).apply {
@@ -80,20 +79,13 @@ abstract class BaseResultsFragment<T : ResultsItem> : BaseFragment() {
             } ?: noUrl()
         }
 
-
-        val binding = DataBindingUtil.inflate<ResultsFragmentBinding>(inflater, R.layout.results_fragment, container, false)
-        val view = binding.root
-        binding.viewModel = viewModel
-
-        viewModel.scrollUpRequested.observe(this) {
+        viewModel.scrollUpRequested.onChanged {
             recycler_view.scrollToPosition(0)
         }
 
         with(binding) {
 
         }
-
-        return view
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -103,24 +95,25 @@ abstract class BaseResultsFragment<T : ResultsItem> : BaseFragment() {
     interface ResultsFragmentInterface {
         fun activityViewModel(): ResultsActivityViewModel
     }
-
-    abstract fun getClazz(): Class<out BaseResultsViewModel<T>>
-
-
 }
 
-class RepoFragment() : BaseResultsFragment<GithubRepo>() {
-    override fun getClazz(): Class<out BaseResultsViewModel<GithubRepo>> = RepoResultsViewModel::class.java
+class RepoFragment() : BaseResultsFragment<GithubRepo, RepoResultsViewModel>() {
+
+    override val viewModelClass: Class<RepoResultsViewModel>
+        get() = RepoResultsViewModel::class.java
 }
 
-class UsersFragment() : BaseResultsFragment<UserItem>() {
-    override fun getClazz(): Class<out BaseResultsViewModel<UserItem>> = UsersResultsViewModel::class.java
+class UsersFragment() : BaseResultsFragment<UserItem, UsersResultsViewModel>() {
+    override val viewModelClass: Class<UsersResultsViewModel>
+        get() = UsersResultsViewModel::class.java
 }
 
-class CommitsFragment() : BaseResultsFragment<CommitItem>() {
-    override fun getClazz(): Class<out BaseResultsViewModel<CommitItem>> = CommitsResultsViewModel::class.java
+class CommitsFragment() : BaseResultsFragment<CommitItem, CommitsResultsViewModel>() {
+    override val viewModelClass: Class<CommitsResultsViewModel>
+        get() = CommitsResultsViewModel::class.java
 }
 
-class IssuesFragment() : BaseResultsFragment<IssueItem>() {
-    override fun getClazz(): Class<out BaseResultsViewModel<IssueItem>> = IssuesResultsViewModel::class.java
+class IssuesFragment() : BaseResultsFragment<IssueItem, IssuesResultsViewModel>() {
+    override val viewModelClass: Class<IssuesResultsViewModel>
+        get() = IssuesResultsViewModel::class.java
 }

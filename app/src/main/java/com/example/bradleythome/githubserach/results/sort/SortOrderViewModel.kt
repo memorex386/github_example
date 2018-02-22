@@ -1,7 +1,7 @@
 package com.example.bradleythome.githubserach.results.sort
 
 import android.app.Application
-import com.example.bradleythome.githubserach.core.BaseViewModel
+import com.example.bradleythome.githubserach.core.base.BaseViewModel
 import com.example.bradleythome.githubserach.network.GithubRepository
 import javax.inject.Inject
 

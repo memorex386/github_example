@@ -1,8 +1,10 @@
-package com.example.bradleythome.githubserach.extensions
+package com.example.bradleythome.githubserach.core.base
 
 import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.LifecycleOwner
+import com.example.bradleythome.githubserach.extensions.CompositeDisposableInterface
+import com.example.bradleythome.githubserach.uitl.ActionItem
 import io.reactivex.disposables.CompositeDisposable
 
 /**
@@ -28,9 +30,5 @@ abstract class BaseViewModel(app: Application) : AndroidViewModel(app), Composit
             liveDataItemAction.actionOccurred(it)
         }
     }
-
-    val app
-        get() = App.instance
-
 }
 

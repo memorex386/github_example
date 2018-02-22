@@ -18,7 +18,7 @@ import com.example.bradleythome.githubserach.network.GithubRepository
 import com.example.bradleythome.githubserach.results.ResultsAdapter
 import com.example.bradleythome.githubserach.results.ResultsItemViewHolder
 import com.example.bradleythome.githubserach.results.fragment.*
-import com.example.bradleythome.githubserach.uitl.BaseLiveDataAction
+import com.example.bradleythome.githubserach.uitl.ActionItem
 import com.example.bradleythome.githubserach.uitl.asyncMain
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
@@ -55,7 +55,7 @@ enum class SearchEnum(val title: String, val sortOptions: HashMap<String, String
     fun startSearch(context: Context): String = context.getString(R.string.start_search, title)
 }
 
-fun SearchEnum.fragment(): BaseResultsFragment<*> = when (this) {
+fun SearchEnum.fragment(): BaseResultsFragment<*, *> = when (this) {
     SearchEnum.REPOSITORIES -> RepoFragment()
     SearchEnum.ISSUES -> IssuesFragment()
     SearchEnum.COMMITS -> CommitsFragment()
@@ -185,7 +185,7 @@ abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val ba
 
     val hasResults = ObservableField<Boolean>(false)
     val loading = ObservableField<Boolean>(false)
-    val itemClickedAction = BaseLiveDataAction<T>()
+    val itemClickedAction = ActionItem<T>()
     val recyclerAdapter = ObservableField<ResultsAdapter<T>>(ResultsAdapter(this))
     val noResultsText = ObservableField<String>(searchEnum.startSearch(app))
     val errorMessage = ObservableField<String?>(null)
