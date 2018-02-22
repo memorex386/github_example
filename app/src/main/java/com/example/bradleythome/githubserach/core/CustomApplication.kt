@@ -16,6 +16,8 @@ class CustomApplication : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
 
+        app = this
+
         if (BuildConfig.DEBUG) {
             Timber.plant(Timber.DebugTree())
         }
@@ -23,3 +25,6 @@ class CustomApplication : DaggerApplication() {
         applyAutoInjector()
     }
 }
+
+lateinit var app: CustomApplication
+    private set

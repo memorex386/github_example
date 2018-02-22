@@ -10,6 +10,7 @@ import android.support.v4.view.ViewPager
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.Toolbar
 import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.example.bradleythome.githubserach.R
+import com.example.bradleythome.githubserach.extensions.BaseLifecycleActivity
 import com.example.bradleythome.githubserach.results.PageNavigationView
 import com.example.bradleythome.githubserach.results.fragment.BaseResultsViewModel
 import com.example.bradleythome.githubserach.search.Order
@@ -131,5 +133,17 @@ fun setOrderOptions(linearLayout: LinearLayout, baseResultsViewModel: BaseResult
             baseResultsViewModel.closeDialog()
         }
         linearLayout.addView(textView)
+    }
+}
+
+@BindingAdapter("default")
+fun toolbarDefault(toolbar: Toolbar, set: Boolean) {
+    val baseLifecycleActivity = toolbar.context as? BaseLifecycleActivity
+    baseLifecycleActivity?.apply {
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            setHomeButtonEnabled(true)
+            setDisplayHomeAsUpEnabled(true)
+        }
     }
 }
