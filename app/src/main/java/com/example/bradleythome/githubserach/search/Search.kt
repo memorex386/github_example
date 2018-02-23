@@ -1,13 +1,13 @@
 package com.example.bradleythome.githubserach.search
 
 import android.app.Application
-import android.content.Context
 import android.databinding.ObservableField
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
 import android.view.ViewGroup
 import com.example.bradleythome.githubserach.R
+import com.example.bradleythome.githubserach.core.app
 import com.example.bradleythome.githubserach.databinding.CommitItemBinding
 import com.example.bradleythome.githubserach.databinding.GithubRepoItemBinding
 import com.example.bradleythome.githubserach.databinding.IssuesItemBinding
@@ -21,7 +21,6 @@ import com.example.bradleythome.githubserach.results.ResultsAdapter
 import com.example.bradleythome.githubserach.results.ResultsItemViewHolder
 import com.example.bradleythome.githubserach.results.fragment.*
 import com.example.bradleythome.githubserach.uitl.ActionItem
-import com.example.bradleythome.githubserach.uitl.asyncMain
 import io.reactivex.Single
 import io.reactivex.disposables.CompositeDisposable
 
@@ -52,9 +51,10 @@ enum class SearchEnum(val title: String, val sortOptions: HashMap<String, String
 
     fun toLowerCase() = this.toString().toLowerCase()
 
-    fun noResults(context: Context, filter: String): String = context.getString(R.string.no_results, title, filter)
+    fun noResults(filter: String): String = app.getString(R.string.no_results, title, filter)
 
-    fun startSearch(context: Context): String = context.getString(R.string.start_search, title)
+    val startSearch
+        get() = app.getString(R.string.start_search, title)
 }
 
 fun SearchEnum.fragment(): BaseResultsFragment<*, *> = when (this) {
@@ -66,7 +66,7 @@ fun SearchEnum.fragment(): BaseResultsFragment<*, *> = when (this) {
 
 fun SearchEnum.searchViewContainer(app: Application, baseResultsViewModel: BaseResultsViewModel<*>, compositeDisposable: CompositeDisposable, githubRepository: GithubRepository): SearchViewContainer<*> = when (this) {
 
-    SearchEnum.REPOSITORIES -> object : SearchViewContainer<GithubRepo>(app, baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.REPOSITORIES) {
+    SearchEnum.REPOSITORIES -> object : SearchViewContainer<GithubRepo>(baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.REPOSITORIES) {
 
         override fun resultsItemViewHolder(parent: ViewGroup?, resultsItem: GithubRepo): ResultsItemViewHolder<GithubRepo> {
             return ResultsItemViewHolder.config(GithubRepoItemBinding::class.java, R.layout.github_repo_item, parent, resultsItem) { binding, resultItem ->
@@ -82,7 +82,7 @@ fun SearchEnum.searchViewContainer(app: Application, baseResultsViewModel: BaseR
         }
     }
 
-    SearchEnum.COMMITS -> object : SearchViewContainer<CommitItem>(app, baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.COMMITS) {
+    SearchEnum.COMMITS -> object : SearchViewContainer<CommitItem>(baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.COMMITS) {
 
         override fun resultsItemViewHolder(parent: ViewGroup?, resultsItem: CommitItem): ResultsItemViewHolder<CommitItem> {
             return ResultsItemViewHolder.config(CommitItemBinding::class.java, R.layout.commit_item, parent, resultsItem) { binding, resultItem ->
@@ -98,7 +98,7 @@ fun SearchEnum.searchViewContainer(app: Application, baseResultsViewModel: BaseR
         }
     }
 
-    SearchEnum.ISSUES -> object : SearchViewContainer<IssueItem>(app, baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.ISSUES) {
+    SearchEnum.ISSUES -> object : SearchViewContainer<IssueItem>(baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.ISSUES) {
 
         override fun resultsItemViewHolder(parent: ViewGroup?, resultsItem: IssueItem): ResultsItemViewHolder<IssueItem> {
             return ResultsItemViewHolder.config(IssuesItemBinding::class.java, R.layout.issues_item, parent, resultsItem) { binding, resultItem ->
@@ -114,7 +114,7 @@ fun SearchEnum.searchViewContainer(app: Application, baseResultsViewModel: BaseR
         }
     }
 
-    SearchEnum.USERS -> object : SearchViewContainer<UserItem>(app, baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.USERS) {
+    SearchEnum.USERS -> object : SearchViewContainer<UserItem>(baseResultsViewModel, githubRepository, compositeDisposable, SearchEnum.USERS) {
 
         override fun resultsItemViewHolder(parent: ViewGroup?, resultsItem: UserItem): ResultsItemViewHolder<UserItem> {
             return ResultsItemViewHolder.config(UsersItemBinding::class.java, R.layout.users_item, parent, resultsItem) { binding, resultItem ->
@@ -183,13 +183,13 @@ class SearchOptions(val searchEnum: SearchEnum, var query: String = "", var page
 /**
  * A View Model or Presenter of sorts to build the necessary tools needed using a generic type for various parts of the app
  */
-abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val baseResultsViewModel: BaseResultsViewModel<*>, val githubRepository: GithubRepository, val compositeDisposable: CompositeDisposable, val searchEnum: SearchEnum) {
+abstract class SearchViewContainer<T : ResultsItem>(val baseResultsViewModel: BaseResultsViewModel<*>, val githubRepository: GithubRepository, val compositeDisposable: CompositeDisposable, val searchEnum: SearchEnum) {
 
     val hasResults = ObservableField<Boolean>(false)
     val loading = ObservableField<Boolean>(false)
     val itemClickedAction = ActionItem<T>()
     val recyclerAdapter = ObservableField<ResultsAdapter<T>>(ResultsAdapter(this))
-    val noResultsText = ObservableField<String>(searchEnum.startSearch(app))
+    val noResultsText = ObservableField<String>(searchEnum.startSearch)
     val errorMessage = ObservableField<String?>(null)
     abstract fun resultsItemViewHolder(parent: ViewGroup?, resultsItem: T): ResultsItemViewHolder<T>
 
@@ -201,7 +201,7 @@ abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val ba
         Log.e("search", searchEnum.title)
 
         if (searchOptions.query.isNullOrBlank()) {
-            noResultsText.set(searchEnum.startSearch(app))
+            noResultsText.set(searchEnum.startSearch)
             errorMessage.set(null)
             hasResults.set(false)
             fail(null)
@@ -223,14 +223,14 @@ abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val ba
         }
 
 
-        noResultsText.set(searchEnum.noResults(app, searchOptions.query))
+        noResultsText.set(searchEnum.noResults(searchOptions.query))
 
 
         loading.set(true)
         api(githubRepository, searchOptions).asyncResult()
-                .ifSuccessful {
-                    results ->
-                    baseResultsViewModel.totalPages.set(Math.ceil((results.totalCount ?: 1) / 30.0).toInt())
+                .ifSuccessful { results ->
+                    baseResultsViewModel.totalPages.set(Math.ceil((results.totalCount
+                            ?: 1) / 30.0).toInt())
                     results.items?.let {
                         baseResultsViewModel.lastSearch = searchOptions
                         recyclerAdapter.get().swapData(it)
@@ -239,8 +239,7 @@ abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val ba
                         hasResults.set(it.size > 0)
                         loading.set(false)
                     }
-                }.ifFail {
-                    throwable ->
+                }.ifFail { throwable ->
                     error(throwable)
                 }
 

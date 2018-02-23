@@ -7,7 +7,6 @@ import android.os.Bundle
 import com.example.bradleythome.githubserach.R
 import com.example.bradleythome.githubserach.core.base.BaseActivity
 import com.example.bradleythome.githubserach.databinding.ResultsActivityBinding
-import com.example.bradleythome.githubserach.extensions.observe
 import com.example.bradleythome.githubserach.results.fragment.BaseResultsFragment
 import com.example.bradleythome.githubserach.results.sort.SortOrderViewModel
 import kotlinx.android.synthetic.main.results_activity.*
@@ -20,7 +19,8 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
 
     private val sortViewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(SortOrderViewModel::class.java) }
 
-    lateinit var adapter: ResultsPagerAdapter
+    val adapter
+        get() = viewModel.adapter
 
     override val layoutRes: Int
         get() = R.layout.results_activity
@@ -28,10 +28,7 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
     override fun preDataBinded(savedInstanceState: Bundle?) {
         super.preDataBinded(savedInstanceState)
 
-
-        adapter = ResultsPagerAdapter(supportFragmentManager)
-
-        viewModel.adapter.set(adapter)
+        viewModel.adapter = ResultsPagerAdapter(supportFragmentManager)
     }
 
     override fun onCreateDataBinded(savedInstanceState: Bundle?) {
@@ -40,10 +37,6 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
 
 
         setSupportActionBar(toolbar)
-
-        1.observe.onChanged {
-
-        }
 
 
         viewModel.sortAction.onChanged {

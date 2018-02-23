@@ -43,7 +43,7 @@ class WebViewActivity : BaseLifecycleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel.url.set(intent.getStringExtra(ARG_URL))
+        viewModel.url = intent.getStringExtra(ARG_URL)
 
         val binding = DataBindingUtil.setContentView<WebViewActivityBinding>(this, R.layout.web_view_activity)
 

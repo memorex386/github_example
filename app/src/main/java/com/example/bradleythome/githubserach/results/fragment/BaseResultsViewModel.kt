@@ -11,11 +11,11 @@ import android.support.v7.app.AlertDialog
 import android.view.ContextThemeWrapper
 import android.view.LayoutInflater
 import com.example.bradleythome.githubserach.R
-import com.example.bradleythome.githubserach.core.app
 import com.example.bradleythome.githubserach.core.base.BaseLifecycleActivity
 import com.example.bradleythome.githubserach.core.base.BaseViewModel
 import com.example.bradleythome.githubserach.databinding.OrderDialogBinding
 import com.example.bradleythome.githubserach.databinding.SortDialogBinding
+import com.example.bradleythome.githubserach.extensions.ifExists
 import com.example.bradleythome.githubserach.extensions.observe
 import com.example.bradleythome.githubserach.models.*
 import com.example.bradleythome.githubserach.network.GithubRepository
@@ -23,8 +23,6 @@ import com.example.bradleythome.githubserach.results.ResultsActivityViewModel
 import com.example.bradleythome.githubserach.results.sort.SortOrderViewModel
 import com.example.bradleythome.githubserach.search.*
 import com.example.bradleythome.githubserach.uitl.Action
-import com.example.bradleythome.githubserach.uitl.onChange
-import com.example.bradleythome.githubserach.uitl.subscribe
 import javax.inject.Inject
 
 /**
@@ -49,13 +47,13 @@ sealed class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: S
     var dialog: AlertDialog? = null
 
     init {
-        currentPage.onChange {
+        currentPage.onChanged {
             search()
         }
-        sort.onChange {
+        sort.onChanged {
             search()
         }
-        order.onChange {
+        order.onChanged {
             search()
         }
         searchViewContainer = searchEnum.searchViewContainer(app, this, compositeDisposable, githubRepository)
@@ -76,15 +74,11 @@ sealed class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: S
             if (field == value) return
             field = value
             value?.apply {
-                querySearch.subscribe(compositeDisposable) { queryRequest ->
-
+                querySearchObserve.onChanged {
                     search()
                 }
-                querySearch.get()?.let {
-                    if (it.isNotBlank()) {
-                        search()
-                    }
-                }
+
+                querySearch.ifExists { search() }
             }
         }
 
@@ -97,10 +91,10 @@ sealed class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: S
             lastSearch = null
             searchingFor = null
             searchViewContainer.hasResults.set(false)
-            searchViewContainer.noResultsText.set(searchEnum.startSearch(app))
+            searchViewContainer.noResultsText.set(searchEnum.startSearch)
         }
 
-        resultsActivityViewModel?.querySearch?.get()?.let {
+        resultsActivityViewModel?.querySearch?.let {
             if (lastSearch?.equals(searchOptions) ?: false) return
             if (searchingFor == (searchOptions)) return
             searchingFor = searchOptions
@@ -115,9 +109,7 @@ sealed class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: S
     }
 
     fun closeDialog() {
-        dialog?.apply {
-            if (isShowing) dismiss()
-        }
+        dialog?.takeIf { it.isShowing }?.dismiss()
     }
 
     fun chooseOrder(activity: BaseLifecycleActivity, sortViewModel: SortOrderViewModel) {
@@ -147,7 +139,7 @@ sealed class BaseResultsViewModel<T : ResultsItem> constructor(val searchEnum: S
     }
 
     val searchOptions: SearchOptions
-        get() = SearchOptions(searchEnum, resultsActivityViewModel?.querySearch?.get()
+        get() = SearchOptions(searchEnum, resultsActivityViewModel?.querySearch
                 ?: "", currentPage.get(), sort.get(), order.get())
 }
 

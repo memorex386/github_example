@@ -1,6 +1,5 @@
 package com.example.bradleythome.githubserach.uitl
 
-import android.databinding.BaseObservable
 import android.databinding.ObservableField
 import io.reactivex.Observable
 import io.reactivex.Single
@@ -41,10 +40,3 @@ fun <T> ObservableField<T>.toObservable(): Observable<T> {
     })
 }
 
-fun BaseObservable.onChange(action: () -> Unit) {
-    this.addOnPropertyChangedCallback(object : android.databinding.Observable.OnPropertyChangedCallback() {
-        override fun onPropertyChanged(sender: android.databinding.Observable?, propertyId: Int) {
-            action()
-        }
-    })
-}

@@ -74,7 +74,7 @@ sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewMo
             it.htmlUrl?.let { url ->
                 dialog = context.dialogSelect {
                     DataBindingUtil.inflate<WebviewDialogBinding>(LayoutInflater.from(activity), R.layout.webview_dialog, null, false).apply {
-                        webViewSelectViewModel.url.set(url)
+                        webViewSelectViewModel.url = url
                         viewModel = webViewSelectViewModel
                     }
                 }
