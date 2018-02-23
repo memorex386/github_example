@@ -1,11 +1,8 @@
 package com.example.bradleythome.githubserach.uitl
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.MutableLiveData
-import android.arch.lifecycle.Observer
+import android.arch.lifecycle.*
 import android.support.annotation.MainThread
 import com.example.bradleythome.githubserach.extensions.Observe
-import com.example.bradleythome.githubserach.extensions.subscribe
 import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 
@@ -14,43 +11,23 @@ import io.reactivex.disposables.CompositeDisposable
  */
 class ResultsHolder<out T : Any?>(val item: T)
 
-open class ObservableFieldItemAction<T : Any?> {
-    //LiveData that backs up our LiveDataAction
-    val liveData = Observe<ResultsHolder<T>?>(null)
+interface ActionInterface<T> {
 
-    @MainThread
-    fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit) {
-        liveData.subscribe(compositeDisposable) { t ->
-            t?.let {
-                observer(it.item)
-                liveData.set(null)
-            }
-        }
-    }
+    fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit): Any?
 
-    @MainThread
-    fun actionOccurred(item: T) {
-        //set backing liveData to true
-        liveData.set(ResultsHolder(item))
-    }
+    fun observe(owner: LifecycleOwner, observer: (T) -> Unit): Any?
+
+    fun observeForever(observer: (T) -> Unit): Any?
+
+    fun actionOccurred(item: T): Any?
 }
 
-class ObservableFieldAction : ObservableFieldItemAction<Boolean>() {
-
-    @MainThread
-    fun actionOccurred() {
-        //set backing liveData to true
-        liveData.set(ResultsHolder(false))
-    }
-}
-
-
-open class ActionItem<T : Any?> {
+open class ActionItem<T> : ActionInterface<T> {
     //LiveData that backs up our LiveDataAction
     val liveData = MutableLiveData<ResultsHolder<T>?>()
 
     @MainThread
-    fun observe(owner: LifecycleOwner, observer: (T) -> Unit) {
+    override fun observe(owner: LifecycleOwner, observer: (T) -> Unit) {
 
         // Observe the internal MutableLiveData
         liveData.observe(owner, Observer<ResultsHolder<T>?> { t ->
@@ -62,7 +39,7 @@ open class ActionItem<T : Any?> {
     }
 
     @MainThread
-    fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit) {
+    override fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit) {
         // Observe the internal MutableLiveData
 
         val observe = Observable.create<ResultsHolder<T>?> {
@@ -89,7 +66,7 @@ open class ActionItem<T : Any?> {
      * This function allows easy testing without needing a LifecycleOwner.
      */
     @MainThread
-    fun observeForever(observer: (T) -> Unit) {
+    override fun observeForever(observer: (T) -> Unit) {
         // Observe the internal MutableLiveData
         liveData.observeForever({ t ->
             t?.let {
@@ -100,7 +77,7 @@ open class ActionItem<T : Any?> {
     }
 
     @MainThread
-    fun actionOccurred(item: T) {
+    override fun actionOccurred(item: T) {
         //set backing liveData to true
         //   if (Looper.myLooper() == Looper.getMainLooper())
         liveData.value = ResultsHolder(item)
@@ -112,5 +89,64 @@ class Action : ActionItem<Boolean>() {
     fun actionOccurred() {
         //set backing liveData to true
         liveData.value = ResultsHolder(true)
+    }
+}
+
+
+open class ObserveActionItem<T> : ActionInterface<T> {
+    //LiveData that backs up our LiveDataAction
+    val liveData = Observe<ResultsHolder<T>?>()
+
+    @MainThread
+    override fun observe(owner: LifecycleOwner, observer: (T) -> Unit): ObserveActionItem<T> {
+        // Observe the internal MutableLiveData
+        val compositeDisposable = CompositeDisposable()
+        val lifeCycleObserver = object : LifecycleObserver {
+            @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+            fun onDestroy() {
+                compositeDisposable.clear()
+            }
+        }
+        observe(compositeDisposable, observer)
+        owner.lifecycle.addObserver(lifeCycleObserver)
+        return this
+    }
+
+    @MainThread
+    override fun observe(compositeDisposable: CompositeDisposable, observer: (T) -> Unit): ObserveActionItem<T> {
+        // Observe the internal MutableLiveData
+
+        liveData.onChanged(compositeDisposable) { t ->
+            t?.let {
+                observer(it.item)
+                liveData set null
+            }
+        }
+        return this
+    }
+
+    /**
+     * This function allows easy testing without needing a LifecycleOwner.
+     */
+    @MainThread
+    override fun observeForever(observer: (T) -> Unit): ObserveActionItem<T> {
+        // Observe the internal MutableLiveData
+        observe(CompositeDisposable(), observer)
+        return this
+    }
+
+    @MainThread
+    override fun actionOccurred(item: T) {
+        //set backing liveData to true
+        //   if (Looper.myLooper() == Looper.getMainLooper())
+        liveData set ResultsHolder(item)
+    }
+}
+
+class ObserveAction : ObserveActionItem<Boolean>() {
+    @MainThread
+    fun actionOccurred() {
+        //set backing liveData to true
+        liveData set ResultsHolder(true)
     }
 }

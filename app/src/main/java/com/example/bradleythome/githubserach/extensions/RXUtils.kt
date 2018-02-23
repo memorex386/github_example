@@ -369,17 +369,7 @@ val <T> (() -> T).single
 interface CompositeDisposableInterface {
     val compositeDisposable: CompositeDisposable
 
-    fun <T> Observe<T>.onChanged(action: (T) -> Unit): Observe<T> {
-        compositeDisposable.subscribe(this, action)
-        return this
-    }
-
-    fun <T> Observe<T>.updateFrom(observe: Observe<T>): Observe<T> {
-        observe.onChanged {
-            this set it
-        }
-        return this
-    }
+    fun <T> Observe<T>.onChanged(action: (T) -> Unit) = onChanged(compositeDisposable, action)
 
     fun <T> ObservableFieldItemAction<T>.onChanged(action: (T) -> Unit): ObservableFieldItemAction<T> {
         this.observe(compositeDisposable, action)

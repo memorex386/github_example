@@ -4,7 +4,8 @@ import android.arch.lifecycle.LifecycleOwner
 import android.databinding.BaseObservable
 import android.databinding.Observable
 import android.databinding.ObservableField
-import com.example.bradleythome.githubserach.uitl.ActionItem
+import com.example.bradleythome.githubserach.uitl.ObserveActionItem
+import io.reactivex.disposables.CompositeDisposable
 import timber.log.Timber
 import kotlin.reflect.KProperty
 
@@ -46,7 +47,7 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
      */
     var customGetter: ((T) -> T)? = null
 
-    val finalUpdate = ActionItem<T>()
+    val finalUpdate = ObserveActionItem<T>()
 
     fun set(value: T, forceUpdate: Boolean = false): Boolean {
         val oldItem = get()
@@ -185,6 +186,18 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
 
     fun setFinalUpdate(action: (T) -> Unit): Observe<T> {
         finalUpdate.observeForever(action)
+        return this
+    }
+
+    fun onChanged(compositeDisposable: CompositeDisposable, action: (T) -> Unit): Observe<T> {
+        compositeDisposable.subscribe(this, action)
+        return this
+    }
+
+    fun updateFrom(observe: Observe<T>): Observe<T> {
+        observe.onChanged {
+            this set it
+        }
         return this
     }
 
