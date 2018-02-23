@@ -14,7 +14,74 @@ import kotlin.reflect.KProperty
  *
  * Created by bradthome on 11/17/17.
  */
-open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
+
+open class Observe<T>(value: T? = null) : BaseObserve<T>(value) {
+    val propertyChanged = ObserveActionItem<PropertyChanged>()
+
+    val finalUpdate = ObserveActionItem<T>()
+
+    /**
+     * Set Custom Setter and return this
+     */
+    override fun preSetter(setter: ((T) -> T)?) = super.preSetter(setter) as Observe<T>
+
+    override fun customGetter(getter: ((T) -> T)?) = super.customGetter(getter) as Observe<T>
+
+    /**
+     * Set Custom Getter and return this
+     */
+    override fun preGetter(getter: ((T) -> T)?) = super.preGetter(getter) as Observe<T>
+
+    override fun configParent(parent: BaseObservable?) = super.configParent(parent) as Observe<T>
+
+    override fun acceptChange(acceptChangeItem: (currentItem: T, newItem: T) -> Boolean) = super.acceptChange(acceptChangeItem) as Observe<T>
+
+    override val allowAllChanges: Observe<T>
+        get() = super.allowAllChanges as Observe<T>
+
+    override fun syncWithObserve(observe: Observe<T>) = super.syncWithObserve(observe) as Observe<T>
+
+    override fun addOnPropertyChangedCallback(action: (T) -> Unit) = super.addOnPropertyChangedCallback(action) as Observe<T>
+
+
+    override fun onChanged(compositeDisposable: CompositeDisposable, action: (T) -> Unit) = super.onChanged(compositeDisposable, action) as Observe<T>
+
+    override fun updateFrom(observe: Observe<T>) = super.updateFrom(observe) as Observe<T>
+
+    override fun propertyChanged(newItem: T, oldItem: T) {
+        propertyChanged.actionOccurred(PropertyChanged(item, oldItem))
+    }
+
+    override fun finalUpdate() {
+        finalUpdate.actionOccurred(get())
+    }
+
+
+    fun onFinalUpdate(compositeDisposableInterface: CompositeDisposableInterface, action: (T) -> Unit): Observe<T> {
+        finalUpdate.observe(compositeDisposableInterface.compositeDisposable, action)
+        return this
+    }
+
+    fun onFinalUpdate(lifecycleOwner: LifecycleOwner, action: (T) -> Unit): Observe<T> {
+        finalUpdate.observe(lifecycleOwner, action)
+        return this
+    }
+
+    fun onFinalUpdate(action: (T) -> Unit): Observe<T> {
+        finalUpdate.observeForever(action)
+        return this
+    }
+
+    /**
+     * Set Custom Post Setter and return this
+     */
+    fun onPropertyChanged(compositeDisposable: CompositeDisposable, propertyChanged: ((PropertyChanged) -> Unit)): Observe<T> {
+        this.propertyChanged.observe(compositeDisposable, propertyChanged)
+        return this
+    }
+}
+
+open class BaseObserve<T>(value: T? = null) : ObservableField<T>(value) {
 
     /**
      * notify a parent Observable when changes are made to this Observable
@@ -40,14 +107,12 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
     /**
      * Gives flexibility to define logic that is applied before the actually setter is ran
      */
-    var propertyChanged: ((newItem: T, oldItem: T) -> Unit)? = null
 
     /**
      * Gives flexibility to define logic that is applied before the actually getter is ran
      */
     var customGetter: ((T) -> T)? = null
 
-    val finalUpdate = ObserveActionItem<T>()
 
     fun set(value: T, forceUpdate: Boolean = false): Boolean {
         val oldItem = get()
@@ -67,16 +132,13 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
         super.removeOnPropertyChangedCallback(changedListener)
         if (!changed) notifyChange()
         propertyChanged(item, oldItem)
-        propertyChanged?.apply {
-            this(item, oldItem)
-        }
         kProp?.let {
             Timber.d("[${it.name}] value changed to $item from $oldItem")
         }
         parentObserve?.apply {
             this.notifyChange()
         }
-//        finalUpdate.actionOccurred(get())
+        finalUpdate()
         return true
     }
 
@@ -91,76 +153,77 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
     override fun get(): T =
             customGetter?.let { it(super.get()) } ?: super.get()
 
-    protected fun propertyChanged(newItem: T, oldItem: T) {
+    protected open fun propertyChanged(newItem: T, oldItem: T) {
+
+    }
+
+    protected open fun finalUpdate() {
 
     }
 
     /**
      * Set Custom Setter and return this
      */
-    fun preSetter(setter: ((T) -> T)?): Observe<T> {
+    open fun preSetter(setter: ((T) -> T)?): BaseObserve<T> {
         customSetter = setter
         return this
     }
 
-    fun customGetter(getter: ((T) -> T)?): Observe<T> {
+    open fun customGetter(getter: ((T) -> T)?): BaseObserve<T> {
         customGetter = getter
         return this
     }
 
-    /**
-     * Set Custom Post Setter and return this
-     */
-    fun configPostSetter(propertyChanged: ((newItem: T, oldItem: T) -> Unit)?): Observe<T> {
-        this.propertyChanged = propertyChanged
-        return this
-    }
 
     /**
      * Set Custom Getter and return this
      */
-    fun preGetter(getter: ((T) -> T)?): Observe<T> {
+    open fun preGetter(getter: ((T) -> T)?): BaseObserve<T> {
         customGetter = getter
         return this
     }
 
-    fun configParent(parent: BaseObservable? = null): Observe<T> {
+    open fun configParent(parent: BaseObservable? = null): BaseObserve<T> {
         parentObserve = parent
         return this
     }
 
-    fun acceptChange(acceptChangeItem: (currentItem: T, newItem: T) -> Boolean): Observe<T> {
+    open fun acceptChange(acceptChangeItem: (currentItem: T, newItem: T) -> Boolean): BaseObserve<T> {
         this.acceptChange = acceptChangeItem
         return this
     }
 
-    val allowAllChanges: Observe<T>
+    open val allowAllChanges: BaseObserve<T>
         get() {
             this.acceptChange = { itemO, itemd -> true }
             return this
         }
 
-    fun syncWithObserve(observe: Observe<T>): Observe<T> {
+    open fun syncWithObserve(observe: Observe<T>): BaseObserve<T> {
         this.addOnPropertyChangedCallback { if (observe.item != it) observe.set(it) }
         observe.addOnPropertyChangedCallback { if (observe.item != it) this.set(it) }
         return this
     }
 
-    fun addOnPropertyChangedCallback(action: (T) -> Unit): Observe<T> {
+    open fun addOnPropertyChangedCallback(action: (T) -> Unit): BaseObserve<T> {
         this.addOnPropertyChangedCallback(object : android.databinding.Observable.OnPropertyChangedCallback() {
             override fun onPropertyChanged(sender: android.databinding.Observable?, propertyId: Int) {
-                action(this@Observe.get())
+                action(this@BaseObserve.get())
             }
         })
         return this
     }
 
-    override fun addOnPropertyChangedCallback(callback: Observable.OnPropertyChangedCallback?) {
-        super.addOnPropertyChangedCallback(callback)
+
+    open fun onChanged(compositeDisposable: CompositeDisposable, action: (T) -> Unit): BaseObserve<T> {
+        compositeDisposable.subscribe(this, action)
+        return this
     }
 
-    fun onPropertiesChanged(action: (newItem: T, oldItem: T) -> Unit): Observe<T> {
-        propertyChanged = action
+    open fun updateFrom(observe: Observe<T>): BaseObserve<T> {
+        observe.onChanged {
+            this set it
+        }
         return this
     }
 
@@ -174,32 +237,14 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
         set(value)
     }
 
-    fun setFinalUpdate(compositeDisposableInterface: CompositeDisposableInterface, action: (T) -> Unit): Observe<T> {
-        finalUpdate.observe(compositeDisposableInterface.compositeDisposable, action)
-        return this
+
+    open fun <SETTER, GETTER> SETTER.formattedObserve(formattedGetter: (SETTER) -> GETTER, formattedSetter: (GETTER) -> SETTER): BaseObserve<SETTER> {
+        return FormattedObserve<SETTER, GETTER>(this, formattedGetter, formattedSetter).configParent(this@BaseObserve)
     }
 
-    fun setFinalUpdate(lifecycleOwner: LifecycleOwner, action: (T) -> Unit): Observe<T> {
-        finalUpdate.observe(lifecycleOwner, action)
-        return this
-    }
 
-    fun setFinalUpdate(action: (T) -> Unit): Observe<T> {
-        finalUpdate.observeForever(action)
-        return this
-    }
-
-    fun onChanged(compositeDisposable: CompositeDisposable, action: (T) -> Unit): Observe<T> {
-        compositeDisposable.subscribe(this, action)
-        return this
-    }
-
-    fun updateFrom(observe: Observe<T>): Observe<T> {
-        observe.onChanged {
-            this set it
-        }
-        return this
-    }
+    val <T> T.baseObserve: BaseObserve<T>
+        get() = BaseObserve(this).configParent(this@BaseObserve)
 
     override fun toString(): String {
         return get().toString()
@@ -208,12 +253,7 @@ open class Observe<T : Any?>(value: T? = null) : ObservableField<T>(value) {
     val string
         get() = toString()
 
-    val <T> T.observe: Observe<T>
-        get() = Observe(this).configParent(this@Observe)
-
-    fun <SETTER, GETTER> SETTER.formattedObserve(formattedGetter: (SETTER) -> GETTER, formattedSetter: (GETTER) -> SETTER): Observe<SETTER> {
-        return FormattedObserve<SETTER, GETTER>(this, formattedGetter, formattedSetter).configParent(this@Observe)
-    }
+    inner class PropertyChanged(val newItem: T, val oldItem: T)
 }
 
 fun <T> Observe<T>.onChanged(action: (T) -> Unit): Observe<T> {

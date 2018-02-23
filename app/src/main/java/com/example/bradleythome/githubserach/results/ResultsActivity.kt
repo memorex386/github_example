@@ -7,6 +7,7 @@ import android.os.Bundle
 import com.example.bradleythome.githubserach.R
 import com.example.bradleythome.githubserach.core.base.BaseActivity
 import com.example.bradleythome.githubserach.databinding.ResultsActivityBinding
+import com.example.bradleythome.githubserach.extensions.observe
 import com.example.bradleythome.githubserach.results.fragment.BaseResultsFragment
 import com.example.bradleythome.githubserach.results.sort.SortOrderViewModel
 import kotlinx.android.synthetic.main.results_activity.*
@@ -39,6 +40,10 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
 
 
         setSupportActionBar(toolbar)
+
+        1.observe.onChanged {
+
+        }
 
 
         viewModel.sortAction.onChanged {

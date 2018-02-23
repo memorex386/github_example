@@ -3,7 +3,7 @@ package com.example.bradleythome.githubserach.extensions
 import android.databinding.ObservableField
 import com.example.bradleythome.githubserach.uitl.Action
 import com.example.bradleythome.githubserach.uitl.ActionItem
-import com.example.bradleythome.githubserach.uitl.ObservableFieldItemAction
+import com.example.bradleythome.githubserach.uitl.ActionItemInterface
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -369,9 +369,14 @@ val <T> (() -> T).single
 interface CompositeDisposableInterface {
     val compositeDisposable: CompositeDisposable
 
-    fun <T> Observe<T>.onChanged(action: (T) -> Unit) = onChanged(compositeDisposable, action)
+    fun <T, OB : BaseObserve<T>> OB.onChanged(action: (T) -> Unit) = onChanged(compositeDisposable, action)
 
-    fun <T> ObservableFieldItemAction<T>.onChanged(action: (T) -> Unit): ObservableFieldItemAction<T> {
+    fun <T, INTERFACE : ActionItemInterface<T>> INTERFACE.onChanged(action: (T) -> Unit): INTERFACE {
+        this.observe(compositeDisposable, action)
+        return this
+    }
+
+    fun <T> ActionItem<T>.onChanged(action: (T) -> Unit): ActionItem<T> {
         this.observe(compositeDisposable, action)
         return this
     }
@@ -387,13 +392,12 @@ interface CompositeDisposableInterface {
 
         fun Network.hasNetwork(context: Context, callback: (NetworkStatus) -> Unit) = hasNetwork(context, compositeDisposable, callback)
     */
-    fun <T> ActionItem<T>.subscribe(sub: (T) -> Unit) {
+    fun <T, INTERFACE : ActionItemInterface<T>> INTERFACE.subscribe(sub: (T) -> Unit): INTERFACE {
         this.observe(compositeDisposable, sub)
+        return this
     }
 
-    fun <T> ActionItem<T>.onChanged(action: (T) -> Unit) = onActionTaken(action)
-
-    fun <T> ActionItem<T>.onActionTaken(action: (T) -> Unit): ActionItem<T> {
+    fun <T, INTERFACE : ActionItemInterface<T>> INTERFACE.onActionTaken(action: (T) -> Unit): INTERFACE {
         this.observe(compositeDisposable, action)
         return this
     }

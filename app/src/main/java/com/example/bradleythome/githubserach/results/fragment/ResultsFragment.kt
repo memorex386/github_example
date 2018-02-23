@@ -69,6 +69,7 @@ sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewMo
             //TODO handle no url here
         }
 
+
         viewModel.searchViewContainer.itemClickedAction.onChanged {
             it.htmlUrl?.let { url ->
                 dialog = context.dialogSelect {
