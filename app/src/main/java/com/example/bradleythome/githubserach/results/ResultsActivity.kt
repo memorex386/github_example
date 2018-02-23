@@ -14,12 +14,12 @@ import kotlinx.android.synthetic.main.results_activity.*
 
 class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBinding>(), BaseResultsFragment.ResultsFragmentInterface {
 
+    override val viewModelClass: Class<ResultsActivityViewModel>
+        get() = ResultsActivityViewModel::class.java
 
     private val sortViewModel by lazy { ViewModelProviders.of(this, viewModelFactory).get(SortOrderViewModel::class.java) }
 
-    companion object {
-        val SORT_RESULT = 1234
-    }
+    lateinit var adapter: ResultsPagerAdapter
 
     override val layoutRes: Int
         get() = R.layout.results_activity
@@ -28,7 +28,7 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
         super.preDataBinded(savedInstanceState)
 
 
-        val adapter = ResultsPagerAdapter(supportFragmentManager)
+        adapter = ResultsPagerAdapter(supportFragmentManager)
 
         viewModel.adapter.set(adapter)
     }
@@ -41,17 +41,15 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
         setSupportActionBar(toolbar)
 
 
-        viewModel.sortAction.observe(this@ResultsActivity) {
-            adapter.getCurrentFragment()?.viewModel?.let {
-                it.chooseSort(this@ResultsActivity, sortViewModel)
-            }
+        viewModel.sortAction.onChanged {
+            adapter.getCurrentFragment()?.publicViewModel?.chooseSort(this@ResultsActivity, sortViewModel)
+
 
         }
 
-        resultsViewModel.orderAction.observe(this@ResultsActivity) {
-            adapter.getCurrentFragment()?.viewModel?.let {
-                it.chooseOrder(this@ResultsActivity, sortViewModel)
-            }
+        viewModel.orderAction.observe(this@ResultsActivity) {
+            adapter.getCurrentFragment()?.publicViewModel?.chooseOrder(this@ResultsActivity, sortViewModel)
+
 
         }
 
@@ -66,7 +64,7 @@ class ResultsActivity : BaseActivity<ResultsActivityViewModel, ResultsActivityBi
 
     }
 
-    override fun activityViewModel(): ResultsActivityViewModel = resultsViewModel
+    override fun activityViewModel(): ResultsActivityViewModel = viewModel
 
 
 }

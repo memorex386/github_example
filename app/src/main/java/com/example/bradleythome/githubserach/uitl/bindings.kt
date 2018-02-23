@@ -21,8 +21,8 @@ import android.view.animation.Animation
 import android.webkit.WebView
 import android.widget.*
 import com.example.bradleythome.githubserach.R
+import com.example.bradleythome.githubserach.core.base.BaseLifecycleActivity
 import com.example.bradleythome.githubserach.extensions.BaseItemsInterface
-import com.example.bradleythome.githubserach.extensions.BaseLifecycleActivity
 import com.example.bradleythome.githubserach.results.PageNavigationView
 import com.example.bradleythome.githubserach.results.fragment.BaseResultsViewModel
 import com.example.bradleythome.githubserach.search.Order
@@ -98,13 +98,13 @@ fun convertBooleanToVisibility(visible: Boolean): Int {
 }
 
 @BindingAdapter("invisible")
-fun setViewModel(view: View, boolean: Boolean) {
+fun setInvisible(view: View, boolean: Boolean) {
     if (boolean) view.visibility = View.VISIBLE
     else view.visibility = View.INVISIBLE
 }
 
 @BindingAdapter("android:visibility")
-fun setViewModel(view: View, string: String?) {
+fun setVisibility(view: View, string: String?) {
     if (string.isNullOrBlank()) view.visibility = View.GONE
     else view.visibility = View.VISIBLE
 }

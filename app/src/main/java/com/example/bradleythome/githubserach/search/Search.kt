@@ -3,7 +3,6 @@ package com.example.bradleythome.githubserach.search
 import android.app.Application
 import android.content.Context
 import android.databinding.ObservableField
-import android.net.ConnectivityManager
 import android.os.Parcel
 import android.os.Parcelable
 import android.util.Log
@@ -13,6 +12,9 @@ import com.example.bradleythome.githubserach.databinding.CommitItemBinding
 import com.example.bradleythome.githubserach.databinding.GithubRepoItemBinding
 import com.example.bradleythome.githubserach.databinding.IssuesItemBinding
 import com.example.bradleythome.githubserach.databinding.UsersItemBinding
+import com.example.bradleythome.githubserach.extensions.activeNetwork
+import com.example.bradleythome.githubserach.extensions.asyncResult
+import com.example.bradleythome.githubserach.extensions.ifFalse
 import com.example.bradleythome.githubserach.models.*
 import com.example.bradleythome.githubserach.network.GithubRepository
 import com.example.bradleythome.githubserach.results.ResultsAdapter
@@ -213,12 +215,9 @@ abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val ba
             loading.set(false)
         }
 
-        val cm = app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-        val activeNetwork = cm.activeNetworkInfo
-        val isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting
 
-        if (!isConnected) {
+        activeNetwork?.isConnectedOrConnecting.ifFalse {
             error(Throwable("No Internet Connection"))
             return
         }
@@ -228,20 +227,22 @@ abstract class SearchViewContainer<T : ResultsItem>(val app: Application, val ba
 
 
         loading.set(true)
-        compositeDisposable.asyncMain(api(githubRepository, searchOptions), { results ->
-            baseResultsViewModel.totalPages.set(Math.ceil((results.totalCount ?: 1) / 30.0).toInt())
-            results.items?.let {
-                baseResultsViewModel.lastSearch = searchOptions
-                recyclerAdapter.get().swapData(it)
-                success()
-                errorMessage.set(null)
-                hasResults.set(it.size > 0)
-                loading.set(false)
-            }
-        },
-                { throwable ->
+        api(githubRepository, searchOptions).asyncResult()
+                .ifSuccessful {
+                    results ->
+                    baseResultsViewModel.totalPages.set(Math.ceil((results.totalCount ?: 1) / 30.0).toInt())
+                    results.items?.let {
+                        baseResultsViewModel.lastSearch = searchOptions
+                        recyclerAdapter.get().swapData(it)
+                        success()
+                        errorMessage.set(null)
+                        hasResults.set(it.size > 0)
+                        loading.set(false)
+                    }
+                }.ifFail {
+                    throwable ->
                     error(throwable)
-                })
+                }
 
     }
 

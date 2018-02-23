@@ -3,6 +3,7 @@ package com.example.bradleythome.githubserach.extensions
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Parcelable
 import android.support.annotation.IdRes
 import android.support.v4.app.Fragment
@@ -15,6 +16,7 @@ import android.webkit.WebView
 import android.widget.BaseAdapter
 import android.widget.TextView
 import com.example.bradleythome.githubserach.core.app
+import com.example.bradleythome.githubserach.core.base.BaseLifecycleActivity
 import com.example.bradleythome.githubserach.core.base.BaseViewModel
 import com.example.bradleythome.githubserach.core.moshi
 import com.squareup.moshi.JsonAdapter
@@ -895,3 +897,8 @@ val Int.string
 inline fun <reified T> Intent.getMoshi(name: String = T::class.java.canonicalName, clazz: Class<T> = T::class.java) = getStringExtra(name).toSafeObjectElseNull(clazz)
 
 inline fun <reified T> Intent.putMoshi(item: T, name: String = T::class.java.canonicalName) = putExtra(name, item?.toJson())
+
+val cm = app.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+
+val activeNetwork = cm.activeNetworkInfo
+val isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting

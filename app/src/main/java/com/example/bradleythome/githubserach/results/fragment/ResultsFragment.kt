@@ -1,6 +1,5 @@
 package com.example.bradleythome.githubserach.results.fragment
 
-import android.arch.lifecycle.ViewModelProvider
 import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.databinding.DataBindingUtil
@@ -19,7 +18,6 @@ import com.example.bradleythome.githubserach.results.webview.WebViewActivity
 import com.example.bradleythome.githubserach.results.webview.WebViewSelectViewModel
 import com.example.bradleythome.githubserach.search.SearchViewContainer
 import kotlinx.android.synthetic.main.results_fragment.*
-import javax.inject.Inject
 
 
 sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewModel<T>> : BaseFragment<VIEW_MODEL, ResultsFragmentBinding>() {
@@ -27,11 +25,12 @@ sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewMo
     override val layoutRes: Int
         get() = R.layout.results_fragment
 
-    @Inject
-    lateinit var viewModelFactory: ViewModelProvider.Factory
     val webViewSelectViewModel by lazy { ViewModelProviders.of(activity, viewModelFactory).get(WebViewSelectViewModel::class.java) }
 
     lateinit var searchViewContainer: SearchViewContainer<T>
+
+    val publicViewModel
+        get() = viewModel
 
     lateinit var resultsFragmentInterface: ResultsFragmentInterface
 
@@ -43,11 +42,13 @@ sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewMo
 
     private var dialog: AlertDialog? = null
 
-    override fun onCreateDataBinded(savedInstanceState: Bundle?) {
+
+    override fun preDataBinded(savedInstanceState: Bundle?) {
+        super.preDataBinded(savedInstanceState)
 
         viewModel.resultsActivityViewModel = resultsFragmentInterface.activityViewModel()
 
-        webViewSelectViewModel.customTab.observe(this) {
+        webViewSelectViewModel.customTab.onChanged {
             dialog?.apply {
                 dismiss()
             }
@@ -83,13 +84,11 @@ sealed class BaseResultsFragment<T : ResultsItem, VIEW_MODEL : BaseResultsViewMo
             recycler_view.scrollToPosition(0)
         }
 
-        with(binding) {
-
-        }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onCreateDataBinded(savedInstanceState: Bundle?) {
+        viewModel.lifecycleOwner = this@BaseResultsFragment
+        binding.viewModel = viewModel
     }
 
     interface ResultsFragmentInterface {

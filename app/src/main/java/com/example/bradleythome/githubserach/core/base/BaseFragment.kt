@@ -86,7 +86,7 @@ abstract class BaseViewModelFragment<T : BaseViewModel> : BaseFragmentSansDataBi
 
     abstract protected val viewModelClass: Class<T>
 
-    protected fun <T : BaseViewModel> getViewModel(clazz: Class<T>) = ViewModelProviders.of(this).get(clazz)
+    protected fun <T : BaseViewModel> getViewModel(clazz: Class<T>) = ViewModelProviders.of(this, viewModelFactory).get(clazz)
 
 }
 
@@ -96,6 +96,7 @@ abstract class BaseFragment<VIEW_MODEL : BaseViewModel, DATA_BINDING : ViewDataB
         private set
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        preDataBinded(savedInstanceState)
         binding = DataBindingUtil.inflate<DATA_BINDING>(inflater, layoutRes, container, false)
         try {
             val found = binding::class.java.declaredMethods.firstOrNull { item ->
@@ -105,7 +106,7 @@ abstract class BaseFragment<VIEW_MODEL : BaseViewModel, DATA_BINDING : ViewDataB
 
             }
             //invoke the setViewModel method if found
-            found?.invoke(binding, viewModel).apply {
+            found?.invoke(binding, viewModel)?.apply {
                 try {
                     viewModel.lifecycleOwner = this@BaseFragment
                 } catch (e: Exception) {
@@ -119,6 +120,13 @@ abstract class BaseFragment<VIEW_MODEL : BaseViewModel, DATA_BINDING : ViewDataB
 
         onCreateDataBinded(savedInstanceState)
         return binding.root
+    }
+
+    /**
+     * once the data has been binded and the view inflated then this is called.  All data binding operations and [onCreate] logic should be ran here
+     */
+    open fun preDataBinded(savedInstanceState: Bundle?) {
+
     }
 
     /**

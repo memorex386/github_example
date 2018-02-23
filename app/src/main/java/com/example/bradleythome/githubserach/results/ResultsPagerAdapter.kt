@@ -15,9 +15,9 @@ import com.example.bradleythome.githubserach.search.fragment
 
 class ResultsPagerAdapter(fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager) {
 
-    private var mCurrentFragment: BaseResultsFragment<*>? = null
+    private var mCurrentFragment: BaseResultsFragment<*, *>? = null
 
-    fun getCurrentFragment(): BaseResultsFragment<*>? {
+    fun getCurrentFragment(): BaseResultsFragment<*, *>? {
         return mCurrentFragment
     }
 
@@ -35,7 +35,7 @@ class ResultsPagerAdapter(fragmentManager: FragmentManager) : FragmentStatePager
 
     override fun setPrimaryItem(container: ViewGroup?, position: Int, `object`: Any) {
         if (getCurrentFragment() !== `object`) {
-            mCurrentFragment = `object` as BaseResultsFragment<*>
+            mCurrentFragment = `object` as BaseResultsFragment<*, *>
         }
         super.setPrimaryItem(container, position, `object`)
     }
