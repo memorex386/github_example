@@ -1,0 +1,98 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//ChatGPT//Mavs Back Court 2026-27//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:Mavs Back Court 2026-27 - Ryan
+X-WR-TIMEZONE:America/Chicago
+BEGIN:VEVENT
+UID:2026-10-24-1900-san-antonio-spurs@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20261024T190000
+DTEND;TZID=America/Chicago:20261024T220000
+SUMMARY:Dallas Mavericks vs. San Antonio Spurs
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Group game - everyone attends
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-11-18-2030-golden-state-warriors@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20261118T203000
+DTEND;TZID=America/Chicago:20261118T233000
+SUMMARY:Dallas Mavericks vs. Golden State Warriors
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Group game - everyone attends
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-11-30-1900-boston-celtics@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20261130T190000
+DTEND;TZID=America/Chicago:20261130T220000
+SUMMARY:Dallas Mavericks vs. Boston Celtics
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Group game - everyone attends
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2026-12-19-1900-chicago-bulls@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20261219T190000
+DTEND;TZID=America/Chicago:20261219T220000
+SUMMARY:Dallas Mavericks vs. Chicago Bulls
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Assigned to Ryan
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-01-18-1900-oklahoma-city-thunder@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20270118T190000
+DTEND;TZID=America/Chicago:20270118T220000
+SUMMARY:Dallas Mavericks vs. Oklahoma City Thunder
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Group game - everyone attends
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-02-07-1530-la-clippers@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20270207T153000
+DTEND;TZID=America/Chicago:20270207T183000
+SUMMARY:Dallas Mavericks vs. LA Clippers
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Assigned to Ryan
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-02-11-1900-portland-trail-blazers@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20270211T190000
+DTEND;TZID=America/Chicago:20270211T220000
+SUMMARY:Dallas Mavericks vs. Portland Trail Blazers
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Assigned to Ryan
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-03-04-2030-new-york-knicks@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20270304T203000
+DTEND;TZID=America/Chicago:20270304T233000
+SUMMARY:Dallas Mavericks vs. New York Knicks
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Group game - everyone attends
+STATUS:CONFIRMED
+END:VEVENT
+BEGIN:VEVENT
+UID:2027-03-09-1900-memphis-grizzlies@mavs-back-court
+DTSTAMP:20260824T165452Z
+DTSTART;TZID=America/Chicago:20270309T190000
+DTEND;TZID=America/Chicago:20270309T220000
+SUMMARY:Dallas Mavericks vs. Memphis Grizzlies
+LOCATION:American Airlines Center\, 2500 Victory Ave\, Dallas\, TX 75219
+DESCRIPTION:Assigned to Ryan
+STATUS:CONFIRMED
+END:VEVENT
+END:VCALENDAR
